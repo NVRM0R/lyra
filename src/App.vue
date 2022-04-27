@@ -1,39 +1,38 @@
 <template>
-    <div class="navBar" >
-        <fileMenu v-bind:files="onServerFiles" @loadNewFile="loadNewFile" @loadProjectFile="loadProjectFile" />
-    </div>
-    <div class="settings" v-if="this.currentObj!=null">
-        <select  @change="setColorScheme($event.target.value)">
-            <option  v-if="this.colorMapsV!=null" v-for="color in this.colorMapsV" :value="color" :selected="color === 'viridis'"> {{color}} </option>
-            <option  v-else> Загрузка </option>
-        </select>
-        <div>
-            Файл:{{this.currentObj.name}}<br />
-            Статус:{{this.currentObj.cyrStatus}}<br />
+    <div class="row">
+        <div class="flex-break" id="navBar">
+            <div >
+                <fileMenu v-bind:files="onServerFiles" @loadNewFile="loadNewFile" @loadProjectFile="loadProjectFile" />
+            </div>
+            <div class="settings" v-if="this.currentObj!=null" color="grey-8">
+                <q-select dense v-model="colorSelectorModel" ref="anatSelector" :options="this.colorMapsV"  @change="setColorScheme($event.target.value)" bg-color="grey-8"/>
+                <div class="plainText">
+                    Файл:<span class="brighterPlainText"><b>{{this.currentObj.name}}</b></span><br />
+                    Статус:<span class="brighterPlainText"><b>{{this.currentObj.cyrStatus}}</b></span><br />
+                </div>
+                <div class="plainText">
+                    Доступные разбиения:<br/>
+                    <q-select dense v-model="anatSelectorModel" ref="anatSelector" :options="this.currentObj.parc"  @change="parcellate($event.target.value)" bg-color="grey-8" label-color="gray-3" />
+                </div>
+                <form @submit.prevent>
+                    <label><q-input type="number" id="parcs" min="1" max="500" bg-color="grey-7" dense /> 
+                    <q-btn dense unelevated color="grey-8" label="Обработать" @click="parcellate()"/></label>
+                </form>
+                <form @submit.prevent>
+                    <q-btn unelevated color="grey-7" label-color="grey-4" label="Удалить проект" @click="superDelete()"/>
+                </form>
+            </div>
         </div>
-        <div>
-            Доступные разбиения:<br/>
-            <select  @change="parcellate($event.target.value)">
-                <option selected>Исходный снимок</option>
-                <option v-for="num in this.currentObj.parc" :value="num"> {{color}} </option>
-            </select>
+        <div class="visual" v-bind:fileDataName="selectedFile">
+            <visual ref="visializator"></visual>
         </div>
-        <form @submit.prevent>
-            <input type="number" id="parcs" min="1" max="500"> 
-            <input type="submit" value="Обработать" @click="parcellate()">
-        </form>
-        <form @submit.prevent>
-            <input type="submit" value="Удалить проект" @click="superDelete()">
-        </form>
-    </div>
-    <div class="visual" v-bind:fileDataName="selectedFile">
-        <visual ref="visializator"></visual>
     </div>
 </template>
 
 <script>
 import fileMenu from "@/components/fileMenu.vue"
 import axios from 'axios';
+import {ref} from 'vue'
 let SERVER_ADDR = "http://192.168.1.27:5000"
 export default{
     components:{
@@ -45,6 +44,8 @@ export default{
             selectedFile:null,
             colorMapsV:null,
             currentObj:null,
+            anatSelectorModel:ref(null),
+            colorSelectorModel:ref(null),
         }
     },
     methods:{
@@ -126,18 +127,19 @@ export default{
 
 
 <style>
-*{
+body{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: #202020;
 }
-.navBar{
-    padding:20px;
+#navBar{
+    width:30%;
 }
-.visual{
-    display:inline-block;
-    background-color: #DDD;
-    width:900px;
-    height:400px;
+.plainText{
+    color:#A0A0A0;
+}
+.brighterPlainText{
+    color:#D0D0D0
 }
 </style>

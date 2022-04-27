@@ -51,7 +51,7 @@ export default {
 
 <template>
 <div id="visualMainDiv">
-<canvas id="gl" height="480" width="640"></canvas>
+<canvas id="gl" height="600" width="800"></canvas>
 </div>
 </template>
 

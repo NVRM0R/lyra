@@ -1,7 +1,12 @@
 <template>
-      <div style="width:200px; background-color:#DDD;">
+      <div>
         <form @submit.prevent>
-            <input class="loadNewFile" ref="fileSelector" type="file" @change="uploadFile" />
+            <q-file filled bottom-slots v-model="model" @update:model-value="uploadFile($event)" ref="fileSelector" label="новый проект" label-color="grey-3">
+                <template v-slot:prepend>
+                <q-icon name="cloud_upload" color="grey-3" @click.stop />
+                </template>
+            </q-file>
+            
             <div id="parcellationsList">
                 <div v-for="item in files" :key="item">
                     <openButton @click="loadFile(item)">
@@ -15,8 +20,9 @@
 
 <script>
 
-
+import { ref } from 'vue' 
 export default {
+    
     props:{
         files:{
             type: Array,
@@ -27,13 +33,13 @@ export default {
         return {
             pFile:{
                 file:null
-            }
+            },
+            model:ref(null),
         }
     },
     methods:{
         uploadFile(event){
-            const newFile = this.$refs.fileSelector.files[0];
-            this.$emit('loadNewFile',newFile);
+            this.$emit('loadNewFile',event);
         },
         loadFile(projectName){
             this.$emit('loadProjectFile',projectName);
@@ -44,10 +50,10 @@ export default {
 
 <style>
 .loadNewFile{
-    width:90%;
     border: 1px solid gray;
     padding: 10px;
     margin: 5%;
     background: none;
+    display:none;
 }
 </style>

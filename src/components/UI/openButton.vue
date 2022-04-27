@@ -1,7 +1,7 @@
 <template>
-  <button >
+  <q-btn flat color="grey-6">
       <slot></slot>
-  </button>
+  </q-btn>
 </template>
 
 <script>
