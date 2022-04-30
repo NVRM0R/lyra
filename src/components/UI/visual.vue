@@ -24,13 +24,14 @@ export default {
   },
     methods:{
         loadImage(file){
+            console.log(file)
             this.volume = [
             {
               id:0,
               url: file,
               volume: {hdr: null, img: null},
               name: "some_image",
-              colorMap: "viridis",
+              colorMap: "gray",
               opacity: 1,
               visible: true,
             }
