@@ -14,7 +14,7 @@
                     Статус:<span class="brighterPlainText"><b>{{this.currentObj.cyrStatus}}</b></span><br />
                     <hr/>
                     Цветовая схема:
-                    <q-select dark class="row inline longInp" dense v-model="colorSelectorModel" ref="anatSelector" :options="this.colorMapsV"  @update:model-value="setColorScheme()" bg-color="grey-8"/>
+                    <q-select dark class="row inline longInp" dense v-model="colorSelectorModel" ref="colorSelector" :options="this.colorMapsV"  @update:model-value="setColorScheme()" bg-color="grey-8"/>
                     Доступные разбиения:
                     <q-select dark class="row inline longInp" dense v-model="anatSelectorModel" ref="anatSelector" :options="this.currentObj.parc"  @update:model-value="loadParcellation()" bg-color="grey-8" color="white" />
                 Новое разбиение:
@@ -114,6 +114,7 @@ export default{
                     if(res.data['status']=='ready'){
                         let request = SERVER_ADDR+'/data/'+this.selectedFile;
                         this.$refs.visializator.loadImage(request)
+                        this.colorSelectorModel = "gray"
                         }
                 })
                 .catch((err) => {
@@ -145,6 +146,7 @@ export default{
                 let request = SERVER_ADDR+'/data/'+this.selectedFile;
                 if(this.anatSelectorModel!='Исходный снимок')
                     request+='@'+this.anatSelectorModel
+                this.colorSelectorModel = 'gray'
                 this.$refs.visializator.loadImage(request)
                 }
         },

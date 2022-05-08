@@ -24,7 +24,6 @@ export default {
   },
     methods:{
         loadImage(file){
-            console.log(file)
             this.volume = [
             {
               id:0,
