@@ -17,7 +17,7 @@ export default {
   },
 
   mounted() {
-    this.nv = new Niivue();
+    this.nv = new Niivue({loadingText:""});
     this.nv.attachTo('gl')
 
     this.colorSchemes = this.nv.colorMaps()

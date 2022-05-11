@@ -2,52 +2,50 @@
     <div class="row">
         <div class="flex-break" id="navBar">
             <div >
-                <fileMenu ref="fileMenu" v-bind:files="onServerFiles" @loadNewFile="loadNewFile" @loadProjectFile="loadProjectFile" @uploadNII="uploadNII" />
+                <fileMenu ref="fileMenu" v-bind:files="onServerFiles" @loadProjectList="loadProjectList" @loadNewFile="loadNewFile" @loadProjectFile="loadProjectFile" @uploadNII="uploadNII" />
             </div>
         </div>
         <div class="visual" v-bind:fileDataName="selectedFile">
             <visual ref="visializator"></visual>
         </div>
-        <div class="settings" v-if="this.currentObj!=null" color="grey-8">
-                <div class="plainText">
-                    Файл:<span class="brighterPlainText"><b>{{this.currentObj.name}}</b></span><br />
-                    Статус:<span class="brighterPlainText"><b>{{this.currentObj.cyrStatus}}</b></span><br />
-                    <hr/>
-                    Цветовая схема:
-                    <q-select dark class="row inline longInp" dense v-model="colorSelectorModel" ref="colorSelector" :options="this.colorMapsV"  @update:model-value="setColorScheme()" bg-color="grey-8"/>
-                    Доступные разбиения:
-                    <q-select dark class="row inline longInp" dense v-model="anatSelectorModel" ref="anatSelector" :options="this.currentObj.parc"  @update:model-value="loadParcellation()" bg-color="grey-8" color="white" />
-                Новое разбиение:
-                </div>
-                <div class="parcBox">
-                    <q-input class="row inline" v-model.number="ParcNumModel" type="number" id="parcs" min="1" max="500" bg-color="grey-7" dense/> 
-                    <q-btn class="row inline" dense unelevated color="grey-8" label="Обработать" @click="parcellate()"/>
-                </div>
-                <div class="deleteProject">
-                    <q-btn unelevated color="grey-7" label-color="grey-4" label="Удалить проект" @click="superDelete()"/>
-                </div>
-            </div>
+        <properties
+        ref="properties"
+        v-bind:colorMapsV="colorMapsV"
+        v-bind:currentObj="currentObj"
+        v-bind:colorSelectorModel="colorSelectorModel"
+        v-bind:anatSelectorModel="anatSelectorModel"
+        v-bind:QualitySelector="QualitySelector"
+        @superDelete="superDelete"
+        @updateProject="updateProject"
+        @downloadProject="downloadProject"
+        @setColorScheme="setColorScheme"
+        @loadImage="loadImage"
+        @parcellate="parcellate"
+        @calcCorr="calcCorr"
+        />
     </div>
 </template>
 
 <script>
 import fileMenu from "@/components/fileMenu.vue"
+import properties from "@/components/properties.vue"
 import axios from 'axios';
 import {ref} from 'vue'
 let SERVER_ADDR = "http://192.168.1.27:5000"
 export default{
     components:{
-        fileMenu
+        fileMenu,
+        properties,
     },
     data(){
         return{
             onServerFiles:[],
-            selectedFile:null,
-            colorMapsV:null,
-            currentObj:null,
+            selectedFile:ref(null),
+            colorMapsV:ref(null),
+            currentObj:ref(null),
             anatSelectorModel:ref(null),
             colorSelectorModel:ref(null),
-            ParcNumModel:ref(null),
+            QualitySelector:ref(null),
         }
     },
     methods:{
@@ -74,7 +72,6 @@ export default{
                 },
             };
             let url = SERVER_ADDR+'/newProject';
-            console.log("HERE");
             return axios.post(url, formData, hdr).then((res) => {
                 let anatPath = res.data['anat']
                 let funcPath = res.data['func']
@@ -89,17 +86,37 @@ export default{
                     };
                 })
         },
+        prepareURL(raw = false){
+            let request = SERVER_ADDR+'/data/'+this.selectedFile;
+            if(!raw){
+                if(this.$refs.properties.QualitySelector=='big')
+                    request+='@BIG'
+                else
+                    request+='@NORM'
+                if(this.$refs.properties.anatSelectorModel!='Исходный снимок')
+                    request+='@'+this.$refs.properties.anatSelectorModel
+            }
+            else
+                request+='@RAW'
+            return request;
+        },
         async loadProjectFile(name){
-
-            this.selectedFile = name;
+            if(name!=null)
+                this.selectedFile = name;
+            if(this.selectedFile == null)
+                return;
             var infoURL = SERVER_ADDR+'/info/'+this.selectedFile;
             this.colorSelectorModel = 'gray'
             this.anatSelectorModel = 'Исходный снимок'
+            this.QualitySelector = "norm"
             return axios.get(infoURL).then((res) => {
                     this.currentObj = res.data
                     console.log(res.data)
                     switch(res.data['status']){
                         case 'new':
+                            this.currentObj.cyrStatus = 'Загрузка файлов'
+                        break
+                        case 'calculating':
                             this.currentObj.cyrStatus = 'вычисляется матрица корреляций'
                         break
                         case 'ready':
@@ -108,14 +125,19 @@ export default{
                         case 'parcellating':
                             this.currentObj.cyrStatus = 'производится разбиение'
                         break
+                        case 'setup':
+                            this.currentObj.cyrStatus = 'настройка параметров'
+                        break
                         default:
                             this.currentObj.cyrStatus = '???'
                     }
+                    /*
                     if(res.data['status']=='ready'){
                         let request = SERVER_ADDR+'/data/'+this.selectedFile;
                         this.$refs.visializator.loadImage(request)
-                        this.colorSelectorModel = "gray"
                         }
+                    */
+                    this.loadImage()
                 })
                 .catch((err) => {
                     return {
@@ -127,9 +149,12 @@ export default{
 
         },
         callExtreaUploader(anat,func){this.$refs.fileMenu.showExtraUploader(anat,func);},
-        setColorScheme(){this.$refs.visializator.setColorScheme(this.colorSelectorModel);},
+        setColorScheme(){this.$refs.visializator.setColorScheme(this.$refs.properties.colorSelectorModel);},
+        downloadProject(){window.open(this.prepareURL());},
+        updateProject(){this.loadProjectFile(null);},
+        superDelete(){return axios.get(SERVER_ADDR+'/delete/'+this.selectedFile);},
         parcellate(){
-            let k = this.ParcNumModel
+            let k = this.$refs.properties.ParcNumModel;
             var infoURL = SERVER_ADDR+'/parcellate';
             const hdr = {
                 headers: {
@@ -138,17 +163,20 @@ export default{
                 },
             };
             console.log(hdr);
-            return axios.get(infoURL,hdr);
+            axios.get(infoURL,hdr);
+            
         },
-        loadParcellation(){
-
-            if(this.currentObj['status']=='ready'){
-                let request = SERVER_ADDR+'/data/'+this.selectedFile;
-                if(this.anatSelectorModel!='Исходный снимок')
-                    request+='@'+this.anatSelectorModel
-                this.colorSelectorModel = 'gray'
-                this.$refs.visializator.loadImage(request)
-                }
+        loadImage(){
+            let request = undefined
+            if(this.currentObj['status']=='ready')
+                request = this.prepareURL();
+            else
+                if(this.currentObj['status']=='setup')
+                   request = this.prepareURL(true);
+            if(request!=undefined)
+                this.$refs.visializator.loadImage(request);
+            console.log('=========');
+            console.log(request);
         },
         uploadNII(anatFile,funcFile,projectName){
             const formData = new FormData();
@@ -162,6 +190,7 @@ export default{
             };
             let url = SERVER_ADDR+'/uploadProjectFiles';
             return axios.post(url, formData, hdr).then((res) => {
+                return true;
                 })
                 .catch((err) => {
                     console.log("Error: "+err);
@@ -172,15 +201,25 @@ export default{
                     };
                 })
         },
-        superDelete(){
-            var delURL = SERVER_ADDR+'/delete/'+this.selectedFile;
-            return axios.get(delURL);
-        },
+        calcCorr(corrThresh,maskThresh){
+            if(this.currentObj.status == 'setup'){
+                let calcCorrURL = SERVER_ADDR+'/calcCorr';
+                const hdr = {
+                    headers: {
+                    "projectName":this.selectedFile,
+                    "corrThresh":corrThresh,
+                    "maskThresh":maskThresh,
+                    },
+                }
+                axios.get(calcCorrURL,hdr);
+            }
+
+        }
     },
     mounted(){
         this.loadProjectList();
         this.colorMapsV = this.$refs.visializator.getColorScheme();
-    }
+        }
 }
 </script>
 
@@ -194,23 +233,5 @@ body{
 }
 #navBar{
     width:20%;
-}
-.settings{
-    margin-left:auto;
-    float:right;
-    justify-content: flex-end;
-    width: 20%;
-}
-.plainText{
-    color:#A0A0A0;
-}
-.brighterPlainText{
-    color:#D0D0D0
-}
-.parcInput{
-    max-width:50px;
-}
-.longInp{
-    width:100%;
 }
 </style>

@@ -6,7 +6,7 @@
                 <q-icon name="cloud_upload" color="grey-3" @click.stop />
                 </template>
             </q-file>
-            <div style="color:#A0A0A0;">
+            <div style="color:#A0A0A0;" :hidden="!uploaderVisible">
                 Для продолженя, нужно загрузить дополнительно два файла:
                 {{ anatPath }}
                 <q-file ref="anatLoader"
@@ -64,6 +64,7 @@ export default {
             connProject:false,
             funcModel:ref(null),
             anatModel:ref(null),
+            uploaderVisible:false,
             anatPath:null,
             anatColor:"grey-3",
 
@@ -75,10 +76,9 @@ export default {
     methods:{
         uploadFile(event){
             this.$emit('loadNewFile',event);
+            this.uploaderVisible = true;
         },
-        loadFile(projectName){
-            this.$emit('loadProjectFile',projectName);
-        },
+        loadFile(projectName){this.$emit('loadProjectFile',projectName);},
         showExtraUploader(anat,func){
             console.log(this.model)
             this.anatPath = anat;
@@ -88,12 +88,16 @@ export default {
         },
         Validate(FieldID){
             console.log(this.aname)
+            console.log(this.aname==undefined)
             console.log(this.fname)
+            console.log(this.fname==undefined)
             switch(FieldID){
                 case 1:
-                    let aname = this.anatPath.split('\\')
-                    aname = aname[aname.length-1]
-
+                    if(this.anatPath.length>0){
+                        var aname = this.anatPath.split('\\')
+                        aname = aname[aname.length-1]
+                    }else
+                        var aname = undefined;
                     if((this.anatModel.name == aname) || (aname == undefined)){
                         this.anatColor = "positive"
                         this.readyFiles[0] = true;
@@ -104,9 +108,11 @@ export default {
                     }
                     break;
                 case 2:
-                    let fname = this.funcPath.split('\\')
-                    fname = fname[fname.length-1]
-                    
+                    if(this.funcPath.length>0){
+                        var fname = this.funcPath.split('\\')
+                        fname = fname[fname.length-1]
+                    }else
+                        var fname = undefined;
                     if((this.funcModel.name == fname) || (fname == undefined)){
                         this.funcColor = "positive"
                         this.readyFiles[1] = true;
@@ -119,8 +125,11 @@ export default {
             }
             console.log(this.anatModel)
             console.log(this.funcModel)
-            if(this.readyFiles[0] && this.readyFiles[1])
-                this.$emit('uploadNII',this.anatModel,this.funcModel,this.model.name);
+            if(this.readyFiles[0] && this.readyFiles[1]){
+                if(this.$emit('uploadNII',this.anatModel,this.funcModel,this.model.name))
+                    this.uploaderVisible = false;
+                this.$emit('loadProjectList');
+            }
         }
   }
 }
