@@ -7,6 +7,7 @@
                     <setup
                     @calcCorr="calcCorr"
                     v-bind:currentObj="this.currentObj"
+                    ref="setup"
                     />
                     <hr />
                     Качество изображения:
@@ -63,8 +64,8 @@
                 </div>
                 <div class="Controlbuttons">
                     <hr/>
-                    <q-btn unelevated dense color="grey-8" label="Скачать файлом" @click="downloadProject()"/>
-                    <q-btn unelevated dense color="grey-8" label="Обновить проект" @click="updateProject()"/>
+                    <q-btn unelevated dense color="grey-8" label="Скачать файлом" @click="downloadProject()"/><br />
+                    <q-btn unelevated dense color="grey-8" label="Обновить проект" @click="updateProject()"/><br />
                     <q-btn unelevated dense color="red-8" label="Удалить проект" @click="superDelete()"/>
                 </div>
     </div>
@@ -96,6 +97,7 @@ export default {
         setColorScheme(){this.$emit("setColorScheme");},
         loadImage(){this.$emit("loadImage");this.colorSelectorModel='gray'},
         parcellate(){this.$emit("parcellate");},
+        updateSliders(){this.$refs.setup.updateSliders();},
         calcCorr(corrThresh,maskThresh){this.$emit("calcCorr",corrThresh,maskThresh);}
     },
 }

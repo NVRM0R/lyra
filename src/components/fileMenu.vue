@@ -86,7 +86,7 @@ export default {
             console.log(this.anatPath)
             console.log(this.funcPath)
         },
-        Validate(FieldID){
+        async Validate(FieldID){
             console.log(this.aname)
             console.log(this.aname==undefined)
             console.log(this.fname)
@@ -126,9 +126,11 @@ export default {
             console.log(this.anatModel)
             console.log(this.funcModel)
             if(this.readyFiles[0] && this.readyFiles[1]){
-                if(this.$emit('uploadNII',this.anatModel,this.funcModel,this.model.name))
+                if(this.$emit('uploadNII',this.anatModel,this.funcModel,this.model.name) == true)
                     this.uploaderVisible = false;
-                this.$emit('loadProjectList');
+                else
+                    alert("Возникла ошибка");
+                await this.$emit('loadProjectList');
             }
         }
   }
