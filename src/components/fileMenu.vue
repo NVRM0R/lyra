@@ -128,8 +128,6 @@ export default {
             if(this.readyFiles[0] && this.readyFiles[1]){
                 if(this.$emit('uploadNII',this.anatModel,this.funcModel,this.model.name) == true)
                     this.uploaderVisible = false;
-                else
-                    alert("Возникла ошибка");
                 await this.$emit('loadProjectList');
             }
         }

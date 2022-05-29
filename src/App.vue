@@ -111,6 +111,10 @@ export default{
             this.QualitySelector = "norm"
             return axios.get(infoURL).then((res) => {
                     this.currentObj = res.data
+                    var tmp = parseFloat(this.currentObj.maskThresh)*100
+                    this.currentObj.maskThresh = tmp.toString()
+                    tmp = parseFloat(this.currentObj.corrThresh)*100
+                    this.currentObj.corrThresh = tmp.toString()
                     console.log(res.data)
                     switch(res.data['status']){
                         case 'new':
