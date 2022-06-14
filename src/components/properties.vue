@@ -60,7 +60,7 @@
                     dense dark
                     /> 
                     <q-btn 
-                    class="row inline" dense unelevated color="grey-8" label="Обработать" @click="parcellate()"/>
+                    class="row inline" dense unelevated color="grey-8" :disable="this.currentObj.status!='ready'" label="Обработать" @click="parcellate()"/>
                 </div>
                 <div class="Controlbuttons">
                     <hr/>
@@ -96,7 +96,7 @@ export default {
         downloadProject(){this.$emit("downloadProject");},
         setColorScheme(){this.$emit("setColorScheme");},
         loadImage(){this.$emit("loadImage");this.colorSelectorModel='gray'},
-        parcellate(){this.$emit("parcellate");},
+        parcellate(){this.$emit("parcellate");setTimeout(() => {this.updateProject();},1000);},
         updateSliders(){this.$refs.setup.updateSliders();},
         calcCorr(corrThresh,maskThresh){this.$emit("calcCorr",corrThresh,maskThresh);}
     },

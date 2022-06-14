@@ -31,7 +31,7 @@ import fileMenu from "@/components/fileMenu.vue"
 import properties from "@/components/properties.vue"
 import axios from 'axios';
 import {ref} from 'vue'
-let SERVER_ADDR = "http://192.168.1.27:5000"
+let SERVER_ADDR = "http://192.168.1.89:5000"
 export default{
     components:{
         fileMenu,
@@ -217,7 +217,7 @@ export default{
                 }
                 axios.get(calcCorrURL,hdr);
             }
-
+            setTimeout(() => {this.updateProject();},1000);
         }
     },
     mounted(){
