@@ -52,6 +52,7 @@ Next, in right section anatomical mask threshold and correlation threshold can b
 <p align="center">
 <img src="images/demo3.png"></img>
 </p>
+
 **brain image blurred intentionally**  
 
 After a while, matrix will be calculated and user will be able to select desired amount of ROIs
