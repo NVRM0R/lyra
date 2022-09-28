@@ -9,6 +9,9 @@ This repo is a front-end side the final qualifying project. The main aim of the 
 
 ### Table of Content:
 + [General Description](#General-Description)
++ [GUI Summary](#GUI)
++ [Tech specs](#Tech-specs)
++ [Demo example](#Demo-example)
 
 
 ### General Description
@@ -17,8 +20,10 @@ Final qualifing project is a web-based application for fMRI brain research. This
 ### GUI
 <p align="center">
 <img src="images/showcase.png"></img>
-<p style="color:red">brain image blurred intentionally</p>
 </p>
+
+**brain image blurred intentionally**  
+
 User interface consist of three parts:  
 
 * <span style="color:#ac5bfe">purple</span> - project selection area  
@@ -53,16 +58,19 @@ After a while, matrix will be calculated and user will be able to select desired
 <p align="center">
 <img src="images/demo4.png"></img>
 </p>
+
 **brain image blurred intentionally**  
 
 By selecting one on the color schemes, user can increase the readability of the image as shown below
 <p align="center">
 <img src="images/demo5.png"></img>
 </p>
+
 **brain image blurred intentionally**  
 
 User also can swtich to 3D mode to rotate and explore brain surface
 <p align="center">
 <img src="images/demo6.png"></img>
 </p>
+
 **brain image blurred intentionally**
